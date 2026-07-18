@@ -9,35 +9,43 @@ const app = express();
 app.use(express.json());
 
 
-// In-Memory Database
+// COUNTERS TO STORE IDs
+
+let USERS_ID = 1;
+let ORGANIZATIONS_ID = 1;
+let BOARDS_ID = 1;
+let ISSUES_ID = 1;
+
+
+// IN-MEMORY DATABASE
 
 const USERS = [{
-    id : 1,
+    id : 0,
     userName : "AB",
     password : "AB123"
 }];
 
 
 const ORGANIZATIONS = [{
-    id : 1,
+    id : 0,
     title : "AB-ORG",
     discription : "AB's ORGANIZATION",
-    admin : 1,
+    admin : 0,
     members : []
 }];
 
 
 const BOARDS = [{
-    id : 1,
+    id : 0,
     title : "Frontend",
-    organizationId : 1
+    organizationId : 0
 }];
 
 
 const ISSUES = [{
-    id : 1,
+    id : 0,
     title : "Add Light Mode",
-    boardId : 1,
+    boardId : 0,
     state : "IN_PROGRESS" // NEXT_up || IN_PROGRESS || DONE || ARCHIVED
 }];
 
@@ -66,7 +74,8 @@ app.post("/signup", (req, res) => {
 
     USERS.push({
         userName,
-        password
+        password,
+        id: USERS_ID++
     })
 
     res.status(201).json({
@@ -93,7 +102,9 @@ app.post("/signin", (req, res) => {
 
     }
 
-    const token = jwt.sign({userName}, process.env.JWT_SECRET);
+    const token = jwt.sign({
+        userId : userExist.id
+    }, process.env.JWT_SECRET);
 
     res.json({
         message : "Sign Up Successfull",
@@ -171,7 +182,7 @@ app.put("/issues", (req, res) => {
 // DELETE - REMOVE MEMBERS
 
 app.delete("/members", (req, res) => {
-    
+
 });
 
 
