@@ -240,7 +240,41 @@ app.put("/issues", (req, res) => {
 
 // DELETE - REMOVE MEMBERS
 
-app.delete("/members", (req, res) => {
+app.delete("/members", authMiddleware, (req, res) => {
+
+    const userId = req.userId;
+    const organizationId = req.body.organizationId;
+    const memberUserName = req.body.memberUserName;
+
+    const organizaiton = ORGANIZATIONS.find(org => org.id === organizationId && org.admin === userId);
+
+    if (!organization) {
+
+        res.status(401).json({
+            message: "Organization doesn't exist or you are not the admin"
+        })
+        return;
+
+    }
+
+    const member = USERS.find(user => user.userName === memberUserName);
+
+    if (!member) {
+
+        res.status(401).json({
+            message: "Member doesn't exist"
+        })
+        return;
+
+    }
+
+    organization.members = orgaization.members.filter(user => user.id !== member.id)
+
+    res.json({
+        message: "Member Deleted from the organization sucessfully",
+        memberId: member.id,
+        organizaitonId: organization.id
+    })
 
 });
 
