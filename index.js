@@ -11,42 +11,42 @@ app.use(express.json());
 
 // COUNTERS TO STORE IDs
 
-let USERS_ID = 1;
-let ORGANIZATIONS_ID = 1;
-let BOARDS_ID = 1;
-let ISSUES_ID = 1;
+let USER_ID = 1;
+let ORGANIZATION_ID = 1;
+let BOARD_ID = 1;
+let ISSUE_ID = 1;
 
 
 // IN-MEMORY DATABASE
 
 const USERS = [{
-    id : 0,
-    userName : "AB",
-    password : "AB123"
+    id: 0,
+    userName: "AB",
+    password: "AB123"
 }];
 
 
 const ORGANIZATIONS = [{
-    id : 0,
-    title : "AB-ORG",
-    discription : "AB's ORGANIZATION",
-    admin : 0,
-    members : []
+    id: 0,
+    title: "AB-ORG",
+    discription: "AB's ORGANIZATION",
+    admin: 0,
+    members: []
 }];
 
 
 const BOARDS = [{
-    id : 0,
-    title : "Frontend",
-    organizationId : 0
+    id: 0,
+    title: "Frontend",
+    organizationId: 0
 }];
 
 
 const ISSUES = [{
-    id : 0,
-    title : "Add Light Mode",
-    boardId : 0,
-    state : "IN_PROGRESS" // NEXT_up || IN_PROGRESS || DONE || ARCHIVED
+    id: 0,
+    title: "Add Light Mode",
+    boardId: 0,
+    state: "IN_PROGRESS" // NEXT_up || IN_PROGRESS || DONE || ARCHIVED
 }];
 
 
@@ -66,7 +66,7 @@ app.post("/signup", (req, res) => {
     if (userExist) {
 
         res.status(400).json({
-            message : "User already exists"
+            message: "User already exists"
         })
         return;
 
@@ -79,7 +79,7 @@ app.post("/signup", (req, res) => {
     })
 
     res.status(201).json({
-        message : "User created successfully"
+        message: "User created successfully"
     })
 
 })
@@ -96,18 +96,18 @@ app.post("/signin", (req, res) => {
     if (!userExist) {
 
         res.status(403).json({
-            message : "Invalid Credentials"
+            message: "Invalid Credentials"
         })
         return;
 
     }
 
     const token = jwt.sign({
-        userId : userExist.id
+        userId: userExist.id
     }, process.env.JWT_SECRET);
 
     res.json({
-        message : "Sign Up Successfull",
+        message: "Sign Up Successfull",
         token
     })
 
@@ -116,14 +116,66 @@ app.post("/signin", (req, res) => {
 
 // POST - CREATE ORGANIZATIONS
 
-app.post("/organization", (req, res) => {
+app.post("/organization", authMiddleware, (req, res) => {
+
+    const userId = req.userId;
+
+    ORGANIZATIONS.push({
+
+        id: ORGANIZATION_ID++,
+        title: req.body.title,
+        description: req.body.description,
+        admin: userId,
+        members: []
+
+    })
+
+    res.json({
+        message: "Organization Created Successfully",
+        org_id: ORGANIZATION_ID - 1
+    })
 
 });
 
 
 // POST - ADD MEMBERS TO ORGANIZATION
 
-app.post("/add-members-to-organizaiton", (req, res) => {
+app.post("/add-members-to-organizaiton", authMiddleware, (req, res) => {
+
+    const userId = req.userId;
+    const organizationId = req.body.organizationId;
+    const memberUserName = req.body.memberUserName;
+
+    const organizaiton = ORGANIZATIONS.find(org => org.id === organizationId && org.admin === userId);
+
+    if (!organization) {
+
+        res.status(401).json({
+            message: "Organization doesn't exist or you are not the admin"
+        })
+        return;
+
+    }
+
+    const member = USERS.find(user => user.userName === memberUserName);
+
+    if (!member) {
+
+        res.status(401).json({
+            message: "Member doesn't exist"
+        })
+        return;
+
+    }
+
+    organization.members.push[member.id];
+
+    res.json({
+        message: "Member added to the organization sucessfully",
+        memberId: member.id,
+        organizaitonId: organization.id
+    })
+
 
 });
 
@@ -144,6 +196,13 @@ app.post("/issues", (req, res) => {
 
 
 // GET ENDPOINTS - READ
+
+
+// GET - VIEW ALL ORGANIZATION
+
+app.get("/organizations", (req, res) => {
+
+});
 
 
 // GET - VIEW ALL BOARDS
