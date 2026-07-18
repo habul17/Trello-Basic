@@ -29,7 +29,7 @@ const USERS = [{
 const ORGANIZATIONS = [{
     id: 0,
     title: "AB-ORG",
-    discription: "AB's ORGANIZATION",
+    description: "AB's ORGANIZATION",
     admin: 0,
     members: []
 }];
@@ -75,7 +75,7 @@ app.post("/signup", (req, res) => {
     USERS.push({
         userName,
         password,
-        id: USERS_ID++
+        id: USER_ID++
     })
 
     res.status(201).json({
@@ -95,7 +95,7 @@ app.post("/signin", (req, res) => {
 
     if (!userExist) {
 
-        res.status(403).json({
+        res.status(401).json({
             message: "Invalid Credentials"
         })
         return;
@@ -107,7 +107,7 @@ app.post("/signin", (req, res) => {
     }, process.env.JWT_SECRET);
 
     res.json({
-        message: "Sign Up Successfull",
+        message: "Sign In Successful",
         token
     })
 
@@ -140,13 +140,13 @@ app.post("/organization", authMiddleware, (req, res) => {
 
 // POST - ADD MEMBERS TO ORGANIZATION
 
-app.post("/add-members-to-organizaiton", authMiddleware, (req, res) => {
+app.post("/add-members-to-organization", authMiddleware, (req, res) => {
 
     const userId = req.userId;
     const organizationId = req.body.organizationId;
     const memberUserName = req.body.memberUserName;
 
-    const organizaiton = ORGANIZATIONS.find(org => org.id === organizationId && org.admin === userId);
+    const organization = ORGANIZATIONS.find(org => org.id === organizationId && org.admin === userId);
 
     if (!organization) {
 
@@ -168,12 +168,24 @@ app.post("/add-members-to-organizaiton", authMiddleware, (req, res) => {
 
     }
 
-    organization.members.push[member.id];
+    if (member.id === userId) {
+        return res.status(400).json({
+            message: "Admin is already part of the organization"
+        });
+    }
+
+    if (organization.members.includes(member.id)) {
+        return res.status(400).json({
+            message: "Member already exists"
+        });
+    }
+
+    organization.members.push(member.id);
 
     res.json({
         message: "Member added to the organization sucessfully",
         memberId: member.id,
-        organizaitonId: organization.id
+        Id: organization.id
     })
 
 
@@ -200,7 +212,35 @@ app.post("/issues", (req, res) => {
 
 // GET - VIEW ALL ORGANIZATION
 
-app.get("/organizations", (req, res) => {
+app.get("/organizations", authMiddleware, (req, res) => {
+
+    const userId = req.userId;
+    const organizationId = parseInt(req.query.organizationId);
+
+    const organization = ORGANIZATIONS.find(org => org.id === organizationId && org.admin === userId);
+
+    if (!organization) {
+
+        res.status(401).json({
+            message: "Organization doesn't exist or you are not the admin"
+        })
+        return;
+
+    }
+
+    res.json({
+        organization: {
+            ...organization,
+            members: organization.members
+                .map(memberId => USERS.find(user => user.id === memberId))
+                .filter(Boolean)
+                .map(user => ({
+                    id: user.id,
+                    userName: user.userName
+                }))
+        }
+    })
+
 
 });
 
@@ -246,7 +286,7 @@ app.delete("/members", authMiddleware, (req, res) => {
     const organizationId = req.body.organizationId;
     const memberUserName = req.body.memberUserName;
 
-    const organizaiton = ORGANIZATIONS.find(org => org.id === organizationId && org.admin === userId);
+    const organization = ORGANIZATIONS.find(org => org.id === organizationId && org.admin === userId);
 
     if (!organization) {
 
@@ -268,12 +308,20 @@ app.delete("/members", authMiddleware, (req, res) => {
 
     }
 
-    organization.members = orgaization.members.filter(user => user.id !== member.id)
+    if (!organization.members.includes(member.id)) {
+        return res.status(401).json({
+            message: "Member is not part of the organization"
+        });
+    }
+
+    organization.members = organization.members.filter(
+        memberId => memberId !== member.id
+    );
 
     res.json({
         message: "Member Deleted from the organization sucessfully",
         memberId: member.id,
-        organizaitonId: organization.id
+        organizationId: organization.id
     })
 
 });
