@@ -43,7 +43,7 @@ const ISSUES = [{
 
 
 
-// POST ENDPOINTS
+// POST ENDPOINTS - CREATE
 
 
 // POST - SIGNUP
@@ -99,8 +99,81 @@ app.post("/signin", (req, res) => {
         message : "Sign Up Successfull",
         token
     })
-    
+
 })
+
+
+// POST - CREATE ORGANIZATIONS
+
+app.post("/organization", (req, res) => {
+
+});
+
+
+// POST - ADD MEMBERS TO ORGANIZATION
+
+app.post("/add-members-to-organizaiton", (req, res) => {
+
+});
+
+
+// POST - CREATE BOARDS
+
+app.post("/boards", (req, res) => {
+
+});
+
+
+// POST - CREATE ISSUES
+
+app.post("/issues", (req, res) => {
+
+});
+
+
+
+// GET ENDPOINTS - READ
+
+
+// GET - VIEW ALL BOARDS
+
+app.get("/boards", (req, res) => {
+
+});
+
+
+// GET - VIEW ALL ISSUES
+
+app.get("/issues", (req, res) => {
+
+});
+
+
+// GET - VIEW ALL MEMBERS
+
+app.get("/members", (req, res) => {
+
+});
+
+
+// PUT ENDPOINTS - UPDATE
+
+// PUT - CHANGE ISSUES STATE
+
+
+app.put("/issues", (req, res) => {
+
+});
+
+
+// DELETE ENDPOINTS - DELETE
+
+// DELETE - REMOVE MEMBERS
+
+app.delete("/members", (req, res) => {
+    
+});
+
 
 
 app.listen(3000);
