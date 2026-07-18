@@ -11,10 +11,36 @@ app.use(express.json());
 
 // In-Memory Database
 
-const USERS = [];
-const ORGANIZATIONS = [];
-const BOARDS = [];
-const ISSUES = [];
+const USERS = [{
+    id : 1,
+    userName : "AB",
+    password : "AB123"
+}];
+
+
+const ORGANIZATIONS = [{
+    id : 1,
+    title : "AB-ORG",
+    discription : "AB's ORGANIZATION",
+    admin : 1,
+    members : []
+}];
+
+
+const BOARDS = [{
+    id : 1,
+    title : "Frontend",
+    organizationId : 1
+}];
+
+
+const ISSUES = [{
+    id : 1,
+    title : "Add Light Mode",
+    boardId : 1,
+    state : "IN_PROGRESS" // NEXT_up || IN_PROGRESS || DONE || ARCHIVED
+}];
+
 
 
 // POST ENDPOINTS
@@ -73,9 +99,7 @@ app.post("/signin", (req, res) => {
         message : "Sign Up Successfull",
         token
     })
-
-
-
+    
 })
 
 
